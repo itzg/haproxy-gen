@@ -10,7 +10,7 @@ dependencies:
     - sudo apt-get update
     - sudo apt-get install glide -y
   cache_directories:
-    - "vendor"
+    - "$APP_PATH/vendor"
 
 test:
   pre:
