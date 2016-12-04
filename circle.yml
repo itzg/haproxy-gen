@@ -26,10 +26,11 @@ deployment:
   owner: itzg
   commands:
    - go get github.com/mitchellh/gox
-   - go get github.com/tcnksm/ghr
+   - wget https://github.com/tcnksm/ghr/releases/download/v0.5.3/ghr_v0.5.3_linux_amd64.zip
+   - unzip ghr_v0.5.3_linux_amd64.zip
    - cd "$APP_PATH" &&
      gox -ldflags "-X main.Version=$CIRCLE_TAG"
      -osarch="$GOX_OS_ARCH"
      -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}"
    - cd "$APP_PATH" &&
-     ghr -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME $CIRCLE_TAG dist/
+     $HOME/$CIRCLE_PROJECT_REPONAME/ghr -u $CIRCLE_PROJECT_USERNAME -r $CIRCLE_PROJECT_REPONAME $CIRCLE_TAG dist/
