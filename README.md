@@ -9,7 +9,7 @@ With the appropriate binary downloaded from the [releases](https://github.com/it
 ```
 ➜ chmod +x haproxy-gen_darwin_amd64
 ➜ ./haproxy-gen_darwin_amd64 generate -d testing.example.com -b apache:80
-INFO[0000] Generating                                    backends=[apache:80] domains=[testing.example.com] templatePath=.
+INFO[0000] Generating       backends=[apache:80] domains=[testing.example.com] templatePath=.
 ```
 
 produces the output:
