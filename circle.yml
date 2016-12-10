@@ -9,8 +9,7 @@ dependencies:
     - sudo add-apt-repository ppa:masterminds/glide -y
     - sudo apt-get update
     - sudo apt-get install glide -y
-    - go get github.com/mitchellh/gox
- cache_directories:
+  cache_directories:
     - "$APP_PATH/vendor"
 
 test:
@@ -20,15 +19,13 @@ test:
     - cd "$APP_PATH" && glide install
   override:
     - cd "$APP_PATH" && go test -cover $(glide nv)
-    - go gox -osarch="$GOX_OS_ARCH" -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}":
-        environment:
-          CGO_ENABLED: 0
 
 deployment:
  release:
   tag: /[0-9]+(\.[0-9]+)*/
   owner: itzg
   commands:
+   - go get github.com/mitchellh/gox
    - wget https://github.com/tcnksm/ghr/releases/download/v0.5.3/ghr_v0.5.3_linux_amd64.zip
    - unzip ghr_v0.5.3_linux_amd64.zip
    - cd "$APP_PATH" &&
