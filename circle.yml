@@ -20,11 +20,10 @@ test:
     - cd "$APP_PATH" && glide install
   override:
     - cd "$APP_PATH" && go test -cover $(glide nv)
-    - go gox:
+    - go gox -osarch="$GOX_OS_ARCH" -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}":
         environment:
           CGO_ENABLED: 0
-        pwd:
-          "$APP_PATH"
+        pwd: $APP_PATH
 
 deployment:
  release:
