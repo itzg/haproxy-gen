@@ -23,7 +23,6 @@ test:
     - go gox -osarch="$GOX_OS_ARCH" -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}":
         environment:
           CGO_ENABLED: 0
-        pwd: $APP_PATH
 
 deployment:
  release:
