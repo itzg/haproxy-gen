@@ -29,15 +29,16 @@ after_success:
       -e SKIP_GLIDE=1 itzg/go-alpine-build:1.7 dist/haproxy-gen_alpine
   - "sudo chown ${USER}: dist/*"
   - cd dist ; for f in *; do tar zcvf $f.tgz $f; done
+  - ls -l dist
 
 deploy:
   provider: releases
   api_key: "${GITHUB_API_KEY}"
   file:
-    - dist/haproxy-gen_linux_386
-    - dist/haproxy-gen_linux_amd64
-    - dist/haproxy-gen_darwin_amd64
-    - dist/haproxy-gen_alpine
+    - dist/haproxy-gen_linux_386.tgz
+    - dist/haproxy-gen_linux_amd64.tgz
+    - dist/haproxy-gen_darwin_amd64.tgz
+    - dist/haproxy-gen_alpine.tgz
   skip_cleanup: true
   on:
     tags: true
