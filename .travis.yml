@@ -35,7 +35,7 @@ deploy:
   provider: releases
   api_key: "${GITHUB_API_KEY}"
   file_glob : true
-  file: dist/*.tgz
+  file: "dist/*.tgz"
   skip_cleanup: true
   on:
     tags: true
