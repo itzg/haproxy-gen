@@ -29,14 +29,12 @@ after_success:
       itzg/go-alpine-build:1.7 dist/haproxy-gen_alpine
   - "sudo chown ${USER}: dist/*"
   - ls -l dist
+  - zip dist.zip dist/
 
 deploy:
   provider: releases
   api_key: "${GITHUB_API_KEY}"
-  file:
-    - dist/haproxy-gen_alpine
-    - dist/haproxy-gen_linux_amd64
-    - dist/haproxy-gen_windows_amd64
+  file: dist.zip
   skip_cleanup: true
   on:
     tags: true
