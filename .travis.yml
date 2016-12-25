@@ -22,19 +22,20 @@ script:
 
 after_success:
   - gox
-        -osarch "linux/386 linux/amd64 darwin/amd64 windows/amd64"
-        -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}"
+        -osarch "linux/386 linux/amd64 darwin/amd64"
+        -output="bin/{{.Dir}}_{{.OS}}_{{.Arch}}"
   - docker run --rm -v $(pwd):/go/src/github.com/itzg/haproxy-gen
       -w /go/src/github.com/itzg/haproxy-gen
-      itzg/go-alpine-build:1.7 dist/haproxy-gen_alpine
-  - "sudo chown ${USER}: dist/*"
-  - ls -l dist
-  - zip dist.zip dist/
+      itzg/go-alpine-build:1.7 bin/haproxy-gen_alpine
+  - "sudo chown ${USER}: bin/*"
+  - mkdir -p dist
+  - cd bin ; for f in *; do tar zcvf ../dist/$f.tgz $f; done
 
 deploy:
   provider: releases
   api_key: "${GITHUB_API_KEY}"
-  file: dist.zip
+  file_glob : true
+  file: dist/*.tgz
   skip_cleanup: true
   on:
     tags: true
