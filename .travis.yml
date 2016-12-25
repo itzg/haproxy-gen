@@ -28,7 +28,7 @@ after_success:
       -w /go/src/github.com/itzg/haproxy-gen
       -e SKIP_GLIDE=1 itzg/go-alpine-build:1.7 dist/haproxy-gen_alpine
   - "sudo chown ${USER}: dist/*"
-  - cd dist ; for f in *; do tar zcvf $f.tgz $f; done
+  - cd dist ; for f in *; do tar zcvf $f.tgz $f; done cd -
   - ls -l dist
 
 deploy:
