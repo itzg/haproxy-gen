@@ -1,3 +1,5 @@
 /vendor/
 /*.iml
 /.idea/
+/haproxy-gen-*
+/dist/

@@ -1,0 +1,23 @@
+language: go
+go:
+- '1.7'
+
+cache:
+  directories:
+    - vendor
+
+install:
+  - go get github.com/mitchellh/gox
+  - go get github.com/Masterminds/glide
+  - glide install
+
+script:
+  - go test $(glide novendor)
+
+after_success:
+  - gox
+        -osarch "linux/386 linux/amd64 darwin/amd64 windows/amd64"
+        -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}"
+  - docker run --rm -v $(pwd):/go/src/github.com/itzg/haproxy-gen
+      -w /go/src/github.com/itzg/haproxy-gen
+      itzg/go-alpine-build:1.7 dist/haproxy-gen_alpine
