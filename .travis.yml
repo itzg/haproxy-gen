@@ -27,7 +27,7 @@ after_success:
   - docker run --rm -v $(pwd):/go/src/github.com/itzg/haproxy-gen
       -w /go/src/github.com/itzg/haproxy-gen
       itzg/go-alpine-build:1.7 dist/haproxy-gen_alpine
-  - chmod a+r dist/*
+  - "sudo chown ${USER}: dist/*"
   - ls -l dist
 
 deploy:
