@@ -24,6 +24,7 @@ after_success:
 
 deploy:
   provider: releases
+  api_key: "${GITHUB_API_KEY}"
   file:
     - dist/haproxy-gen_alpine
     - dist/haproxy-gen_linux_amd64
