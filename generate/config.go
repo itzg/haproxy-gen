@@ -1,6 +1,7 @@
 package generate
 
 import (
+	"github.com/Sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"strings"
@@ -31,7 +32,7 @@ type Config struct {
 	TemplatePath string
 	// Certs is the path to a directory containing haproxy supported certificates. If not specified, only http on port 80
 	// will be supported.
-	Certs string
+	Certs string `yaml:",omitempty"`
 
 	FrontendStats StatsConfig
 	Domains       []Domain
@@ -102,6 +103,47 @@ func (c *Config) AddSimpleDomain(domain string, backendServer string) {
 		Domain:  domain,
 		Servers: []string{backendServer},
 	})
+}
+
+// Validate returns true if the configuration is valid and self-consistent
+func (c *Config) Validate() bool {
+	for i, d := range c.Domains {
+
+		if d.Domain == "" {
+			logrus.Warnf("Domain entry %d was missing the domain", i+1)
+			return false
+		}
+
+		if d.UserListName != "" {
+			userList := c.FindUserList(d.UserListName)
+			if userList == nil {
+				logrus.WithFields(logrus.Fields{
+					"domain":   d.Domain,
+					"userList": d.UserListName,
+				}).Warn("The referenced user list does not exist")
+				return false
+			}
+		}
+
+		if len(d.Servers) == 0 {
+			logrus.WithFields(logrus.Fields{
+				"domain": d.Domain,
+			}).Warn("Each domain requires one or more backend servers")
+			return false
+		}
+	}
+
+	return true
+}
+
+func (c *Config) FindUserList(listName string) *UserList {
+	for i, _ := range c.UserLists {
+		if c.UserLists[i].UserList == listName {
+			return &c.UserLists[i]
+		}
+	}
+
+	return nil
 }
 
 func (d *Domain) Ref() string {

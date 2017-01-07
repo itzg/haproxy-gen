@@ -2,33 +2,12 @@ package generate_test
 
 import (
 	"bytes"
-	"github.com/alecthomas/assert"
 	"github.com/itzg/haproxy-gen/generate"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 	"testing"
 )
-
-func TestSanity_Encode(t *testing.T) {
-	config := generate.NewConfig()
-
-	config.Domains = []generate.Domain{
-		{
-			Domain:  "www.example.com",
-			Servers: []string{"backend:8080"},
-		},
-	}
-
-	expected := `templatepath: .
-domains:
-- domain: www.example.com
-  servers:
-  - backend:8080
-`
-	encoded, err := yaml.Marshal(config)
-	require.NoError(t, err)
-	assert.Equal(t, expected, string(encoded))
-}
 
 func TestSanity_Decode(t *testing.T) {
 	config := generate.NewConfig()
@@ -50,6 +29,47 @@ func TestConfig_Empty(t *testing.T) {
 
 	assert.NotNil(t, config)
 	assert.NotEmpty(t, config.TemplatePath)
+}
+
+func TestConfig_MissingUserList(t *testing.T) {
+	in := `
+domains:
+- domain: www.example.com
+  servers:
+  - "backend:8080"
+  userlistname: unknown
+`
+
+	config, err := generate.LoadFromYaml([]byte(in))
+	require.NoError(t, err)
+
+	assert.False(t, config.Validate())
+}
+
+func TestConfig_EmptyBackendServers(t *testing.T) {
+	in := `
+domains:
+- domain: www.example.com
+  servers:
+`
+
+	config, err := generate.LoadFromYaml([]byte(in))
+	require.NoError(t, err)
+
+	assert.False(t, config.Validate())
+}
+
+func TestConfig_MissingDomainName(t *testing.T) {
+	in := `
+domains:
+- servers:
+  - "backend:8080"
+`
+
+	config, err := generate.LoadFromYaml([]byte(in))
+	require.NoError(t, err)
+
+	assert.False(t, config.Validate())
 }
 
 func TestFromFile_NoDomains(t *testing.T) {
