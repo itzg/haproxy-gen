@@ -1,0 +1,21 @@
+templatepath: .
+certs: /etc/certs
+domains:
+- domain: one.example.com
+  servers:
+  - server1:8080
+  userlistname: u1
+  stats:
+    enabled: true
+    basepath: /stats
+    user: admin
+    password: admin
+userlists:
+- userlist: u1
+  users:
+  - username: admin
+    encpassword: $1$B7LfUIdP$PQGZFB2JQ0Tq/BRQrCtG//
+extra:
+  global:
+  defaults:
+  end:

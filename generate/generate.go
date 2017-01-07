@@ -2,68 +2,36 @@ package generate
 
 import (
 	"github.com/Sirupsen/logrus"
-	"os"
+	"io"
 	"path"
-	"strings"
 	"text/template"
-	"unicode"
 )
-
-type Config struct {
-	TemplatePath string
-	Domains      []string
-	Backends     []string
-	Stats        struct {
-		Disabled bool
-		BasePath string
-		User     string
-		Password string
-	}
-}
-
-type Context struct {
-	Config
-
-	DomainRefs []string
-}
 
 const tmplName = "haproxy.cfg.tmpl"
 
-func Execute(cfg *Config) {
-	if len(cfg.Domains) != len(cfg.Backends) {
-		logrus.Fatal("The number of domains and backends need to equal")
-	}
+func Execute(cfg *Config, wr io.Writer) error {
 	logrus.WithFields(logrus.Fields{
 		"templatePath": cfg.TemplatePath,
+		"certs":        cfg.Certs,
 		"domains":      cfg.Domains,
-		"backends":     cfg.Backends,
-	}).Info("Generating")
-
-	var ctx Context = Context{Config: *cfg}
-	ctx.DomainRefs = make([]string, len(cfg.Domains))
-	for i, d := range cfg.Domains {
-		ctx.DomainRefs[i] = convertDomainToRef(d)
-	}
+		"userLists":    cfg.UserLists,
+	}).Debug("Generating")
 
 	tmpl, err := template.New(tmplName).ParseFiles(path.Join(cfg.TemplatePath, tmplName))
 	if err != nil {
 		logrus.WithError(err).WithField("templatePath", cfg.TemplatePath).
-			Fatal("Unable to parse template file")
+			Error("Unable to parse template file")
+
+		return err
 	}
 
-	err = tmpl.Execute(os.Stdout, ctx)
+	err = tmpl.Execute(wr, cfg)
 	if err != nil {
 		logrus.WithError(err).WithField("templatePath", cfg.TemplatePath).
-			Fatal("Unable to execute template")
-	}
-}
+			Error("Unable to execute template")
 
-func convertDomainToRef(domain string) string {
-	return strings.Map(func(r rune) rune {
-		if unicode.IsDigit(r) || unicode.IsLetter(r) {
-			return r
-		} else {
-			return '_'
-		}
-	}, domain)
+		return err
+	}
+
+	return nil
 }

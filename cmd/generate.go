@@ -15,11 +15,21 @@
 package cmd
 
 import (
+	"github.com/Sirupsen/logrus"
 	"github.com/itzg/haproxy-gen/generate"
 	"github.com/spf13/cobra"
+	"io"
+	"os"
+	"regexp"
 )
 
-var generateCfg = generate.Config{}
+const (
+	FlagConfigFile = "in"
+	FlagDomain     = "domain"
+	FlagOutFile    = "out"
+)
+
+var ReSimpleDomain = regexp.MustCompile(`(.*?)@(.*?:\d+)`)
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -27,7 +37,58 @@ var generateCmd = &cobra.Command{
 	Short: "Generates the haproxy.cfg file",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		generate.Execute(&generateCfg)
+
+		configFile, err := cmd.Flags().GetString(FlagConfigFile)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+
+		var config *generate.Config
+		if configFile != "" {
+			config, err = generate.LoadFromYamlFile(configFile)
+			if err != nil {
+				logrus.Fatal(err)
+			}
+		} else {
+			config = generate.NewConfig()
+		}
+
+		simpleDomains, err := cmd.Flags().GetStringSlice(FlagDomain)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+
+		for _, simpleDomain := range simpleDomains {
+			parts := ReSimpleDomain.FindStringSubmatch(simpleDomain)
+			if parts == nil {
+				logrus.WithField("given", simpleDomain).Warn("Invalid simple domain format")
+				continue
+			}
+
+			config.AddSimpleDomain(parts[1], parts[2])
+		}
+
+		var writer io.Writer
+		outFilename, err := cmd.Flags().GetString(FlagOutFile)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+		if outFilename != "" {
+			file, err := os.Create(outFilename)
+			if err != nil {
+				logrus.Fatal(err)
+			}
+			logrus.WithField("name", outFilename).Infoln("Writing to file")
+			defer file.Close()
+			writer = file
+		} else {
+			writer = os.Stdout
+		}
+
+		err = generate.Execute(config, writer)
+		if err != nil {
+			os.Exit(2)
+		}
 	},
 }
 
@@ -44,12 +105,11 @@ func init() {
 	// is called directly, e.g.:
 	// generateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	generateCmd.Flags().StringVar(&generateCfg.TemplatePath, "template", ".", "The directory that contains haproxy.cfg.tmpl")
-	generateCmd.Flags().StringArrayVarP(&generateCfg.Domains, "domains", "d", nil, "The domains to proxy")
-	generateCmd.Flags().StringArrayVarP(&generateCfg.Backends, "backends", "b", nil, "The host:port of the backends serving the domains")
+	generateCmd.Flags().StringP(FlagConfigFile, "i", "", "A YAML configuration file for haproxy-gen")
+	generateCmd.MarkFlagFilename(FlagConfigFile, "yaml", "yml")
 
-	generateCmd.Flags().BoolVar(&generateCfg.Stats.Disabled, "stats-disabled", false, "Should stats endpoint be disabled")
-	generateCmd.Flags().StringVar(&generateCfg.Stats.User, "stats-user", "admin", "Username of the stats endpoint")
-	generateCmd.Flags().StringVar(&generateCfg.Stats.Password, "stats-password", "haproxy", "Password of the stats endpoint")
-	generateCmd.Flags().StringVar(&generateCfg.Stats.BasePath, "stats-basepath", "/hastats", "Basepath of the stats endpoint")
+	generateCmd.Flags().StringSliceP(FlagDomain, "d", []string{}, "A domain definition formatted as FRONTEND_HOST@SERVER:PORT")
+
+	generateCmd.Flags().StringP(FlagOutFile, "o", "", "The name of a file where rendered results are written. If not provided, then results are rendered to stdout")
+	generateCmd.MarkFlagFilename(FlagOutFile)
 }

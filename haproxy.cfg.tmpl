@@ -5,34 +5,52 @@ global
     ssl-default-bind-options no-sslv3 no-tlsv10 no-tlsv11 no-tls-tickets
     ssl-default-server-ciphers ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CH
     ssl-default-server-options no-sslv3 no-tlsv10 no-tlsv11 no-tls-tickets
-
+{{.Extra.Global}}
 
 defaults
     mode    http
     option  forwardfor
     option  http-server-close
-{{if not .Stats.Disabled }}
-    stats   enable
-    stats   uri {{.Stats.BasePath}}
-    stats   realm HAproxy\ Stats
-    stats   auth {{.Stats.User}}:{{.Stats.Password}}
-{{end}}
     timeout client 30s
     timeout connect 4s
     timeout server 30s
+{{.Extra.Defaults}}
+
+{{range .UserLists}}
+userlist {{.UserList}}
+{{range .Users}}  user {{.Username}} password {{.EncPassword}}{{end}}
+{{end}}
 
 frontend ft
-    bind    :443 ssl crt /etc/certs
-    bind    :80
+{{- if .Certs}}
+    bind    :443 ssl crt {{.Certs}}
     redirect scheme https code 301 if !{ ssl_fc }
     # HSTS (15768000 seconds = 6 months)
     http-response set-header Strict-Transport-Security max-age=15768000
+{{end}}
+    bind    :80
+{{- if .FrontendStats.Enabled}}{{block "stats" .FrontendStats}}
+    stats   enable
+{{- if .BasePath           }}
+    stats   uri {{.BasePath}}{{end}}
+{{- if .Realm              }}
+    stats   realm {{.Realm}}{{end}}
+{{- if and .User .Password }}
+    stats   auth {{.User}}:{{.Password}}{{end}}
+{{- if .HideVersion        }}
+    stats   hide-version{{end}}
+{{end}}{{end}}
+{{range .Domains}}    use_backend {{.Ref}} if { hdr(host) -i {{.Domain}} }{{end}}
 
-{{range $i, $ref := .DomainRefs}}
-    acl host_{{$ref}} hdr(host) -i {{index $.Domains $i}}
-    use_backend {{$ref}} if host_{{$ref}}
-{{end}}
-{{range $i, $ref := .DomainRefs}}
-backend {{$ref}}
-    server {{$ref}} {{index $.Backends $i}}
-{{end}}
+{{range .Domains}}
+backend {{.Ref}}
+    {{range $j, $server := .Servers}}
+    server {{$j}} {{$server}}
+    {{end}}
+    {{if .Stats.Enabled}}{{template "stats" .Stats}}{{end}}
+    {{if .UserListName}}
+    acl AuthOkay_{{.UserListName}} http_auth({{.UserListName}})
+    http-request auth realm {{.UserListName}} if !AuthOkay_{{.UserListName}}
+    {{end}}
+{{end}}{{/*domain*/}}
+{{.Extra.End}}
