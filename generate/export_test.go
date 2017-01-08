@@ -1,8 +1,8 @@
 package generate_test
 
 import (
-	"github.com/alecthomas/assert"
 	"github.com/itzg/haproxy-gen/generate"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
