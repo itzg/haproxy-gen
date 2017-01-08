@@ -1,5 +1,12 @@
 templatepath: .
 certs: /etc/certs
+
+frontendstats:
+  enabled: true
+  basepath: /ft_stats
+  user: superuser
+  password: simple
+
 domains:
 - domain: one.example.com
   servers:
@@ -10,12 +17,24 @@ domains:
     basepath: /stats
     user: admin
     password: admin
+- domain: two.example.com
+  servers:
+  - server2:8080
+  - server3:8080
+
 userlists:
 - userlist: u1
   users:
   - username: admin
     encpassword: $1$B7LfUIdP$PQGZFB2JQ0Tq/BRQrCtG//
+  - username: copilot
+    encpassword: $1$4U5Xcs62$HHa2WkdRfgFO3g9s/H8SV0
+- userlist: u2
+  users:
+  - username: bonus
+    encpassword: $1$8K.gBKHa$/lmmOPZi5uTugyGkLvi/Z1
+
 extra:
-  global:
-  defaults:
-  end:
+  global: "#end of global"
+  defaults: "#end of defaults"
+  end: "#end of the end"

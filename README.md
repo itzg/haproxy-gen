@@ -1,6 +1,23 @@
-Generates an haproxy.cfg file for multi-domain proxying
+This tool uses a Go template and expands out the contents
+for any number of domains to proxy.
 
-Run it without any arguments to view usage.
+Run it without any arguments to view usage:
+
+```
+Usage:
+  haproxy-gen [command]
+
+Available Commands:
+  certbot-args   Generate the -d arguments suitable for passing to certbot
+  generate       Generates the haproxy.cfg file
+  primary-domain Extract just the primary domain from the given configuration and domains
+
+Flags:
+      --config string   config file (default is $HOME/.haproxy-gen.yaml)
+  -t, --toggle          Help message for toggle
+
+Use "haproxy-gen [command] --help" for more information about a command.
+```
 
 ## Example
 
@@ -8,8 +25,7 @@ With the appropriate binary downloaded from the [releases](https://github.com/it
 
 ```
 ➜ chmod +x haproxy-gen_darwin_amd64
-➜ ./haproxy-gen_darwin_amd64 generate -d testing.example.com -b apache:80
-INFO[0000] Generating       backends=[apache:80] domains=[testing.example.com] templatePath=.
+➜ ./haproxy-gen_darwin_amd64 generate -d testing.example.com@apache:80
 ```
 
 produces the output:

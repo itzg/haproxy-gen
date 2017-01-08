@@ -15,10 +15,10 @@ defaults
     timeout connect 4s
     timeout server 30s
 {{.Extra.Defaults}}
-
 {{range .UserLists}}
 userlist {{.UserList}}
-{{range .Users}}  user {{.Username}} password {{.EncPassword}}{{end}}
+{{range .Users}}  user {{.Username}} password {{.EncPassword}}
+{{end}}
 {{end}}
 
 frontend ft
@@ -29,7 +29,7 @@ frontend ft
     http-response set-header Strict-Transport-Security max-age=15768000
 {{end}}
     bind    :80
-{{- if .FrontendStats.Enabled}}{{block "stats" .FrontendStats}}
+{{if .FrontendStats.Enabled}}{{block "stats" .FrontendStats}}
     stats   enable
 {{- if .BasePath           }}
     stats   uri {{.BasePath}}{{end}}
@@ -40,17 +40,17 @@ frontend ft
 {{- if .HideVersion        }}
     stats   hide-version{{end}}
 {{end}}{{end}}
-{{range .Domains}}    use_backend {{.Ref}} if { hdr(host) -i {{.Domain}} }{{end}}
+{{range .Domains}}    use_backend {{.Ref}} if { hdr(host) -i {{.Domain}} }
+{{end}}
 
 {{range .Domains}}
 backend {{.Ref}}
-    {{range $j, $server := .Servers}}
-    server {{$j}} {{$server}}
-    {{end}}
-    {{if .Stats.Enabled}}{{template "stats" .Stats}}{{end}}
-    {{if .UserListName}}
+{{range $j, $server := .Servers}}
+    server {{$j}} {{$server}}{{end}}
+{{if .Stats.Enabled}}{{template "stats" .Stats}}{{end}}
+{{if .UserListName}}
     acl AuthOkay_{{.UserListName}} http_auth({{.UserListName}})
     http-request auth realm {{.UserListName}} if !AuthOkay_{{.UserListName}}
-    {{end}}
+{{end}}
 {{end}}{{/*domain*/}}
 {{.Extra.End}}
