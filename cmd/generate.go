@@ -20,16 +20,7 @@ import (
 	"github.com/spf13/cobra"
 	"io"
 	"os"
-	"regexp"
 )
-
-const (
-	FlagConfigFile = "in"
-	FlagDomain     = "domain"
-	FlagOutFile    = "out"
-)
-
-var ReSimpleDomain = regexp.MustCompile(`(.*?)@(.*?:\d+)`)
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -38,35 +29,7 @@ var generateCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		configFile, err := cmd.Flags().GetString(FlagConfigFile)
-		if err != nil {
-			logrus.Fatal(err)
-		}
-
-		var config *generate.Config
-		if configFile != "" {
-			config, err = generate.LoadFromYamlFile(configFile)
-			if err != nil {
-				logrus.Fatal(err)
-			}
-		} else {
-			config = generate.NewConfig()
-		}
-
-		simpleDomains, err := cmd.Flags().GetStringSlice(FlagDomain)
-		if err != nil {
-			logrus.Fatal(err)
-		}
-
-		for _, simpleDomain := range simpleDomains {
-			parts := ReSimpleDomain.FindStringSubmatch(simpleDomain)
-			if parts == nil {
-				logrus.WithField("given", simpleDomain).Warn("Invalid simple domain format")
-				continue
-			}
-
-			config.AddSimpleDomain(parts[1], parts[2])
-		}
+		config := loadConfigFromCommonFlags(cmd)
 
 		var writer io.Writer
 		outFilename, err := cmd.Flags().GetString(FlagOutFile)
@@ -95,20 +58,7 @@ var generateCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(generateCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// generateCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// generateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
-	generateCmd.Flags().StringP(FlagConfigFile, "i", "", "A YAML configuration file for haproxy-gen")
-	generateCmd.MarkFlagFilename(FlagConfigFile, "yaml", "yml")
-
-	generateCmd.Flags().StringSliceP(FlagDomain, "d", []string{}, "A domain definition formatted as FRONTEND_HOST@SERVER:PORT")
+	addCommonFlags(generateCmd)
 
 	generateCmd.Flags().StringP(FlagOutFile, "o", "", "The name of a file where rendered results are written. If not provided, then results are rendered to stdout")
 	generateCmd.MarkFlagFilename(FlagOutFile)
