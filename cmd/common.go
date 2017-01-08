@@ -46,8 +46,10 @@ func loadConfigFromCommonFlags(cmd *cobra.Command) *generate.Config {
 	if err != nil {
 		logrus.Fatal(err)
 	}
-	for _, part := range strings.Split(joinedSimpleDomains, DomainsDelim) {
-		simpleDomains = append(simpleDomains, part)
+	if joinedSimpleDomains != "" {
+		for _, part := range strings.Split(joinedSimpleDomains, DomainsDelim) {
+			simpleDomains = append(simpleDomains, part)
+		}
 	}
 
 	for _, simpleDomain := range simpleDomains {
