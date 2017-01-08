@@ -13,6 +13,7 @@ const (
 	FlagDomain     = "domain"
 	FlagDomains    = "domains"
 	FlagOutFile    = "out"
+	DomainsDelim   = ","
 )
 
 var ReSimpleDomain = regexp.MustCompile(`(.*?)@(.*?:\d+)`)
@@ -45,7 +46,7 @@ func loadConfigFromCommonFlags(cmd *cobra.Command) *generate.Config {
 	if err != nil {
 		logrus.Fatal(err)
 	}
-	for _, part := range strings.Split(joinedSimpleDomains, ";") {
+	for _, part := range strings.Split(joinedSimpleDomains, DomainsDelim) {
 		simpleDomains = append(simpleDomains, part)
 	}
 
@@ -68,5 +69,5 @@ func addCommonFlags(cmd *cobra.Command) {
 	cmd.MarkFlagFilename(FlagConfigFile, "yaml", "yml")
 
 	cmd.Flags().StringSliceP(FlagDomain, "d", []string{}, "A domain definition formatted as FRONTEND_HOST@SERVER:PORT")
-	cmd.Flags().String(FlagDomains, "", "Domain definitions separated by semicolon")
+	cmd.Flags().String(FlagDomains, "", "Domain definitions separated by commas")
 }
