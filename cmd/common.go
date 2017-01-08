@@ -4,7 +4,6 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/itzg/haproxy-gen/generate"
 	"github.com/spf13/cobra"
-	"github.com/spf13/cobra/cobra/cmd"
 	"regexp"
 )
 
