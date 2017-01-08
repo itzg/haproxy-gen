@@ -5,6 +5,7 @@ import (
 	"github.com/itzg/haproxy-gen/generate"
 	"github.com/spf13/cobra"
 	"regexp"
+	"strings"
 )
 
 const (
@@ -33,9 +34,19 @@ func loadConfigFromCommonFlags(cmd *cobra.Command) *generate.Config {
 		config = generate.NewConfig()
 	}
 
+	// from distinct args
 	simpleDomains, err := cmd.Flags().GetStringSlice(FlagDomain)
 	if err != nil {
 		logrus.Fatal(err)
+	}
+
+	// from semicolon joined arg
+	joinedSimpleDomains, err := cmd.Flags().GetString(FlagDomains)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	for _, part := range strings.Split(joinedSimpleDomains, ";") {
+		simpleDomains = append(simpleDomains, part)
 	}
 
 	for _, simpleDomain := range simpleDomains {

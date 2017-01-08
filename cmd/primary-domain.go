@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 )
 
@@ -24,6 +25,8 @@ var primaryDomainCmd = &cobra.Command{
 	Short: "Extract just the primary domain from the given configuration and domains",
 	Run: func(cmd *cobra.Command, args []string) {
 		config := loadConfigFromCommonFlags(cmd)
+
+		fmt.Print(config.ExportPrimaryDomain())
 	},
 }
 

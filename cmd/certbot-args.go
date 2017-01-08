@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 )
 
@@ -23,6 +24,8 @@ var certbotArgsCmd = &cobra.Command{
 	Short: "Generate the -d arguments suitable for passing to certbot",
 	Run: func(cmd *cobra.Command, args []string) {
 		config := loadConfigFromCommonFlags(cmd)
+
+		fmt.Print(config.ExportCertbotArgs())
 	},
 }
 
