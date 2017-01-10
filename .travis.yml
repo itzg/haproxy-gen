@@ -12,13 +12,16 @@ cache:
   directories:
     - vendor
 
-install:
+before_install:
   - go get github.com/mitchellh/gox
   - go get github.com/Masterminds/glide
+  - go get github.com/mattn/goveralls
+
+install:
   - glide install
 
 script:
-  - go test $(glide novendor)
+  - $HOME/gopath/bin/goveralls -service=travis-ci
 
 after_success:
   - gox
