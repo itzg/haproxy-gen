@@ -16,6 +16,8 @@ package main
 
 import "github.com/itzg/haproxy-gen/cmd"
 
+var version = "master"
+
 func main() {
-	cmd.Execute()
+	cmd.Execute(version)
 }
