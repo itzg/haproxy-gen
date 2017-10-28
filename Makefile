@@ -16,6 +16,9 @@ build:
 install:
 	go install
 
+snapshot: ${GORELEASER} .goreleaser.yml
+	${GORELEASER} --snapshot
+
 release: ${GORELEASER} .goreleaser.yml
 	${GORELEASER}
 
