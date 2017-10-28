@@ -42,11 +42,11 @@ workflows:
   version: 2
   build-and-release:
     jobs:
-      - build
+      - build:
           filters:
             tags:
               only: /.*/
-      - release
+      - release:
           requires:
             - build
           filters:
