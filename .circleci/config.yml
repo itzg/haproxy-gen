@@ -1,0 +1,22 @@
+version: 2
+
+jobs:
+  build:
+    working_directory: /go/src/github.com/itzg/haproxy-gen
+    docker:
+      - image: circleci/golang:1.9
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - vendor-cache-{{ "glide.lock" }}
+            - vendor-cache
+      - run: make dependencies
+      - save_cache:
+          key: vendor-cache-{{ "glide.lock" }}
+          paths:
+            - vendor
+      - run: make test
+      - run: make install
+      - store_artifacts:
+          path: ${GOPATH}/bin/haproxy-gen
