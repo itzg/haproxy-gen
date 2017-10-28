@@ -14,3 +14,9 @@ archive:
   files:
     - sample-config.yml
     - haproxy.cfg.tmpl
+
+changelog:
+  filters:
+    exclude:
+      - '^build:'
+      - '^tweak:'
