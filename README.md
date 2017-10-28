@@ -1,5 +1,5 @@
 
-[![Coverage Status](https://coveralls.io/repos/github/itzg/haproxy-gen/badge.svg?branch=master)](https://coveralls.io/github/itzg/haproxy-gen?branch=master)
+[![CircleCI](https://circleci.com/gh/itzg/haproxy-gen.svg?style=svg)](https://circleci.com/gh/itzg/haproxy-gen)
 
 This tool uses a Go template and expands out the contents
 for any number of domains to proxy.
