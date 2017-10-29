@@ -39,3 +39,4 @@ extra:
   defaults: "#end of defaults"
   end: "#end of the end"
   frontend: "#end of the frontend"
+  prefrontend: "#start of the frontend"

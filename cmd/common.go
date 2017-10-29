@@ -9,11 +9,12 @@ import (
 )
 
 const (
-	FlagConfigFile = "in"
-	FlagDomain     = "domain"
-	FlagDomains    = "domains"
-	FlagOutFile    = "out"
-	DomainsDelim   = ","
+	FlagConfigFile   = "in"
+	FlagDomain       = "domain"
+	FlagDomains      = "domains"
+	FlagOutFile      = "out"
+	FlagDisableCerts = "disable-certs"
+	DomainsDelim     = ","
 )
 
 var ReSimpleDomain = regexp.MustCompile(`(.*?)@(.*?:\d+)`)

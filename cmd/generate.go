@@ -31,6 +31,15 @@ var generateCmd = &cobra.Command{
 
 		config := loadConfigFromCommonFlags(cmd)
 
+		disableCerts, err := cmd.Flags().GetBool(FlagDisableCerts)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+		if disableCerts {
+			logrus.Info("Disabling certs usage")
+			config.Certs = ""
+		}
+
 		var writer io.Writer
 		outFilename, err := cmd.Flags().GetString(FlagOutFile)
 		if err != nil {
@@ -62,4 +71,6 @@ func init() {
 
 	generateCmd.Flags().StringP(FlagOutFile, "o", "", "The name of a file where rendered results are written. If not provided, then results are rendered to stdout")
 	generateCmd.MarkFlagFilename(FlagOutFile)
+
+	generateCmd.Flags().BoolP(FlagDisableCerts, "", false, "Disables the certs configuration such as when bootstrapping SSL")
 }
