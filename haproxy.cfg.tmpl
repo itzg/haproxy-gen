@@ -22,9 +22,10 @@ userlist {{.UserList}}
 {{end}}
 
 frontend ft
+{{.Extra.PreFrontend}}
 {{- if .Certs}}
     bind    :443 ssl crt {{.Certs}}
-    redirect scheme https code 301 if !{ ssl_fc }
+    redirect scheme https code 301 if {{.HttpHttpsRedirectCondition}}
     # HSTS (15768000 seconds = 6 months)
     http-response set-header Strict-Transport-Security max-age=15768000
 {{end}}
@@ -42,6 +43,7 @@ frontend ft
 {{end}}{{end}}
 {{range .Domains}}    use_backend {{.Ref}} if { hdr(host) -i {{.Domain}} }
 {{end}}
+{{.Extra.Frontend}}
 
 {{range .Domains}}
 backend {{.Ref}}

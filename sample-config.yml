@@ -38,3 +38,4 @@ extra:
   global: "#end of global"
   defaults: "#end of defaults"
   end: "#end of the end"
+  frontend: "#end of the frontend"

@@ -1,11 +1,12 @@
 package generate
 
 import (
-	"github.com/Sirupsen/logrus"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"strings"
 	"unicode"
+
+	"github.com/Sirupsen/logrus"
+	"gopkg.in/yaml.v2"
 )
 
 const DefaultStatsBasePath = "/_hastats"
@@ -25,14 +26,19 @@ type ExtraConfig struct {
 	Global   string
 	Defaults string
 	// End content is inserted at the very end of the file
-	End string
+	End         string
+	Frontend    string
+	PreFrontend string
 }
 
+// Config contains the primary configuration descriptors
 type Config struct {
 	TemplatePath string
 	// Certs is the path to a directory containing haproxy supported certificates. If not specified, only http on port 80
 	// will be supported.
 	Certs string `yaml:",omitempty"`
+	// Default is !{ ssl_fc }
+	HttpHttpsRedirectCondition string
 
 	FrontendStats StatsConfig
 	Domains       []Domain
@@ -93,6 +99,10 @@ func LoadFromYaml(content []byte) (*Config, error) {
 	err := yaml.Unmarshal(content, config)
 	if err != nil {
 		return nil, err
+	}
+
+	if config.HttpHttpsRedirectCondition == "" {
+		config.HttpHttpsRedirectCondition = "!{ ssl_fc }"
 	}
 
 	return config, nil

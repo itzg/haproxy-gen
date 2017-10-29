@@ -1,5 +1,6 @@
 /vendor/
 /*.iml
 /.idea/
+/projectFilesBackup/
 /haproxy-gen-*
 /dist/
